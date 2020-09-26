@@ -52,22 +52,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(new MarkerOptions().position(initialPos).title("Doggo"));
         //mMap.moveCamera(CameraUpdateFactory.newLatLng(initialPos));
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(initialPos, 15.0f));
+
+        bluetoothOn();
     }
 
-    // Initializes Bluetooth adapter.
-    final BluetoothManager bluetoothManager =
-            (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-    BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
+    public void bluetoothOn() {
 
-    // Ensures Bluetooth is available on the device and it is enabled. If not,
-    // displays a dialog requesting user permission to enable Bluetooth.
-    if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
-        Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-        startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-    }
+        final int REQUEST_ENABLE_BT = 1;
 
+        // Initializes Bluetooth adapter.
+        final BluetoothManager bluetoothManager =
+                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+
+        BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
+
+        // Ensures Bluetooth is available on the device and it is enabled. If not,
+        // displays a dialog requesting user permission to enable Bluetooth.
+        if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        }
+    } // bluetoothOn
 }
 
+/*
 public class ConnectThread extends Thread {
     private final BluetoothSocket mmSocket;
     private final BluetoothDevice mmDevice;
@@ -97,3 +105,5 @@ public class ConnectThread extends Thread {
         } catch (IOException e) { }
     }
 }
+
+ */
