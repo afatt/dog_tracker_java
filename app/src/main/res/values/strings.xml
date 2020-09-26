@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">dog_tracker_java</string>
+    <string name="title_activity_maps">Map</string>
+</resources>
