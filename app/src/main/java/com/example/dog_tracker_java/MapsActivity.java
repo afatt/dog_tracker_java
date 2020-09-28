@@ -2,6 +2,7 @@ package com.example.dog_tracker_java;
 
 import androidx.fragment.app.FragmentActivity;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -9,6 +10,9 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -17,12 +21,20 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.util.Set;
 import java.util.UUID;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    BluetoothDevice mDevice;
+    //BluetoothSocket mmSocket;
+    BluetoothAdapter bluetoothAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,17 +66,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(initialPos, 15.0f));
 
         bluetoothOn();
+
+        // DONT THINK THESE SHOULD BE CALLED HERE
+        // GETTING A NULL EXCEPTION BECAUSE mDevice is NULL
+       // ConnectThread mConnectThread = new ConnectThread(mDevice);
+        //mConnectThread.start();
+
+        // DONT THINK THESE SHOULD BE CALLED HERE
+        // GETTING A NULL EXCEPTION BECAUSE mmSocket is NULL
+        //ConnectedThread mConnectedThread = new ConnectedThread(mmSocket);
+        //mConnectedThread.start();
+
     }
 
     public void bluetoothOn() {
 
         final int REQUEST_ENABLE_BT = 1;
 
+        Log.d("TESTING", "TESTING THE LOGGER HELLO HELLO");
         // Initializes Bluetooth adapter.
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
 
-        BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
+        bluetoothAdapter = bluetoothManager.getAdapter();
 
         // Ensures Bluetooth is available on the device and it is enabled. If not,
         // displays a dialog requesting user permission to enable Bluetooth.
@@ -72,38 +96,138 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
-    } // bluetoothOn
-}
 
-/*
-public class ConnectThread extends Thread {
-    private final BluetoothSocket mmSocket;
-    private final BluetoothDevice mmDevice;
-    private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
-    public ConnectThread(BluetoothDevice device) {
-        BluetoothSocket tmp = null;
-        mmDevice = device;
-        try {
-            tmp = device.createRfcommSocketToServiceRecord(MY_UUID);
-        } catch (IOException e) { }
-        mmSocket = tmp;
-    }
-    public void run() {
-        mBluetoothAdapter.cancelDiscovery();
-        try {
-            mmSocket.connect();
-        } catch (IOException connectException) {
-            try {
-                mSocket.close();
-            } catch (IOException closeException) { }
-            return;
+        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
+        if (pairedDevices.size() > 0) {
+            for (BluetoothDevice device : pairedDevices) {
+                if (device.getName().equals("Dog_Tracker_Rx")) {
+                    mDevice = device;
+                    Log.d("INSIDE PAIRED", "HELLO " + mDevice.getName());
+                }
+            }
         }
-    }
-    public void cancel() {
-        try {
-            mmSocket.close();
-        } catch (IOException e) { }
-    }
+        // DONT THINK THESE SHOULD BE CALLED HERE
+        // GETTING A NULL EXCEPTION BECAUSE mDevice is NULL
+        if (mDevice != null) {
+            Log.d("CONNECT THREAD", "HELLO HELLO");
+            ConnectThread mConnectThread = new ConnectThread(mDevice);
+            mConnectThread.start();
+        }
+
+    } // bluetoothOn
+
+    private class ConnectThread extends Thread {
+        private final BluetoothSocket mmSocket;
+        private final BluetoothDevice mmDevice;
+        private final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
+
+        // Constructor that will accept the device when instance is created
+        public ConnectThread(BluetoothDevice device) {
+            BluetoothSocket tmp = null;
+            mmDevice = device;
+            try {
+                tmp = device.createRfcommSocketToServiceRecord(MY_UUID);
+            } catch (IOException e) { }
+            mmSocket = tmp;
+        }
+        public void run() {
+            bluetoothAdapter.cancelDiscovery();
+            try {
+                Log.d("SOCKETTRY", "HELLO");
+                mmSocket.connect();
+            } catch (IOException connectException) {
+                try {
+                    Log.d("SOCKETCLOSE", "HELLO Connection to " + mDevice.getName() + " at "
+                          + mDevice.getAddress() + " failed:" + connectException.getMessage());
+                    mmSocket.close();
+                } catch (IOException closeException) { }
+                return;
+            }
+            Log.d("AFTER RUNNER", "HELLO");
+            ConnectedThread mConnectedThread = new ConnectedThread(mmSocket);
+            mConnectedThread.start();
+        }
+        public void cancel() {
+            try {
+                mmSocket.close();
+            } catch (IOException e) { }
+        }
+    } // ConnectThread Device
+
+    private class ConnectedThread extends Thread {
+        private final BluetoothSocket mmSocket;
+        private final InputStream mmInStream;
+        private final OutputStream mmOutStream;
+        public ConnectedThread(BluetoothSocket socket) {
+            mmSocket = socket;
+            InputStream tmpIn = null;
+            OutputStream tmpOut = null;
+            try {
+                tmpIn = socket.getInputStream();
+                tmpOut = socket.getOutputStream();
+            } catch (IOException e) { Log.d("EXCEPTION", "HELLO " + e.getMessage());}
+            mmInStream = tmpIn;
+            mmOutStream = tmpOut;
+        }
+        public void run() {
+            byte[] buffer = new byte[1024];
+            int begin = 0;
+            int bytes = 0;
+            while (true) {
+                try {
+                    bytes += mmInStream.read(buffer, bytes, buffer.length - bytes);
+                    for (int i = begin; i < bytes; i++) {
+                        if (buffer[i] == "#".getBytes()[0]) {
+                            mHandler.obtainMessage(1, begin, i, buffer).sendToTarget();
+                            begin = i + 1;
+                            if (i == bytes - 1) {
+                                bytes = 0;
+                                begin = 0;
+                            }
+                        }
+                    }
+                } catch (IOException e) {
+                    Log.d("CAUGHT", "HELLO " + e.getMessage());
+                    break;
+                }
+            }
+        }
+        public void write(byte[] bytes) {
+            try {
+                mmOutStream.write(bytes);
+            } catch (IOException e) { }
+        }
+        public void cancel() {
+            try {
+                mmSocket.close();
+            } catch (IOException e) { }
+        }
+    } //ConnectedThread Socket
+
+    @SuppressLint("HandlerLeak")
+    Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            Log.d("HANDLER", "HELLO");
+            byte[] writeBuf = (byte[]) msg.obj;
+            int begin = (int)msg.arg1;
+            int end = (int)msg.arg2;
+
+            switch(msg.what) {
+                case 1:
+                    Log.d("CASE", "HELLO");
+                    String writeMessage = new String(writeBuf);
+                    Log.d("MESSAGE", "HELLO " + writeMessage);
+                    //writeMessage = writeMessage.substring(begin, end);
+                    break;
+            }
+        }
+    };
+
+
+
 }
 
- */
+
+
+
