@@ -18,13 +18,13 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Set;
 import java.util.UUID;
@@ -33,7 +33,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     BluetoothDevice mDevice;
-    //BluetoothSocket mmSocket;
     BluetoothAdapter bluetoothAdapter;
 
     @Override
@@ -61,21 +60,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Add a marker and move the camera39.1500263, -86.5633982
         LatLng initialPos = new LatLng(39.1500263, -86.5633982);
-        mMap.addMarker(new MarkerOptions().position(initialPos).title("Doggo"));
+        mMap.addMarker(new MarkerOptions()
+                           .position(initialPos)
+                           .title("Doggo"));
         //mMap.moveCamera(CameraUpdateFactory.newLatLng(initialPos));
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(initialPos, 15.0f));
 
         bluetoothOn();
-
-        // DONT THINK THESE SHOULD BE CALLED HERE
-        // GETTING A NULL EXCEPTION BECAUSE mDevice is NULL
-       // ConnectThread mConnectThread = new ConnectThread(mDevice);
-        //mConnectThread.start();
-
-        // DONT THINK THESE SHOULD BE CALLED HERE
-        // GETTING A NULL EXCEPTION BECAUSE mmSocket is NULL
-        //ConnectedThread mConnectedThread = new ConnectedThread(mmSocket);
-        //mConnectedThread.start();
 
     }
 
@@ -106,8 +97,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         }
-        // DONT THINK THESE SHOULD BE CALLED HERE
-        // GETTING A NULL EXCEPTION BECAUSE mDevice is NULL
+
         if (mDevice != null) {
             Log.d("CONNECT THREAD", "HELLO HELLO");
             ConnectThread mConnectThread = new ConnectThread(mDevice);
@@ -218,11 +208,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Log.d("CASE", "HELLO");
                     String writeMessage = new String(writeBuf);
                     Log.d("MESSAGE", "HELLO " + writeMessage.substring(1,30));
+                    updateLatLon(writeMessage.substring(1,30));
                     //writeMessage = writeMessage.substring(begin, end);
                     break;
             }
         }
     }; //Handler
+
+    public void updateLatLon(String msg) {
+        String lat = msg.substring(4, 14);
+        String lon = msg.substring(19, 29);
+        Log.d("LAT", "HELLO " + lat);
+        Log.d("LON", "HELLO " + lon);
+    }
 } //MapsActivity
 
 
