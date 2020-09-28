@@ -217,16 +217,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 case 1:
                     Log.d("CASE", "HELLO");
                     String writeMessage = new String(writeBuf);
-                    Log.d("MESSAGE", "HELLO " + writeMessage);
+                    Log.d("MESSAGE", "HELLO " + writeMessage.substring(1,30));
                     //writeMessage = writeMessage.substring(begin, end);
                     break;
             }
         }
-    };
-
-
-
-}
+    }; //Handler
+} //MapsActivity
 
 
 
