@@ -18,7 +18,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -62,7 +61,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng initialPos = new LatLng(39.1500263, -86.5633982);
         mMap.addMarker(new MarkerOptions()
                            .position(initialPos)
-                           .title("Doggo"));
+                           .title("Doggo")
+                           .icon(BitmapDescriptorFactory.fromResource(R.drawable.scared_dog_ic)));
         //mMap.moveCamera(CameraUpdateFactory.newLatLng(initialPos));
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(initialPos, 15.0f));
 
@@ -224,12 +224,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Double dlat = Double.parseDouble(lat);
             Double dlon = Double.parseDouble(lon);
 
-            //mMap.clear(); //Keeps markers from persisting on map (Mem leak potential?)
+            mMap.clear(); //Keeps markers from persisting on map (Mem leak potential?)
 
             LatLng updatedPos = new LatLng(dlat, dlon);
             mMap.addMarker(new MarkerOptions()
                     .position(updatedPos)
-                    .title("Doggo"));
+                    .title("Doggo")
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.scared_dog_ic)));
             //mMap.moveCamera(CameraUpdateFactory.newLatLng(initialPos));
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(updatedPos, 18.0f));
         } catch (Exception e) {Log.d("EXCEPTION", "HELLO " + e.getMessage()); }
