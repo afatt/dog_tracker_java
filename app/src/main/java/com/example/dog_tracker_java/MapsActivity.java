@@ -220,6 +220,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String lon = msg.substring(19, 29);
         Log.d("LAT", "HELLO " + lat);
         Log.d("LON", "HELLO " + lon);
+        try {
+            Double dlat = Double.parseDouble(lat);
+            Double dlon = Double.parseDouble(lon);
+
+            //mMap.clear(); //Keeps markers from persisting on map (Mem leak potential?)
+
+            LatLng updatedPos = new LatLng(dlat, dlon);
+            mMap.addMarker(new MarkerOptions()
+                    .position(updatedPos)
+                    .title("Doggo"));
+            //mMap.moveCamera(CameraUpdateFactory.newLatLng(initialPos));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(updatedPos, 18.0f));
+        } catch (Exception e) {Log.d("EXCEPTION", "HELLO " + e.getMessage()); }
     }
 } //MapsActivity
 
