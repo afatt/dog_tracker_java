@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -209,6 +210,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     String writeMessage = new String(writeBuf);
                     Log.d("MESSAGE", "HELLO " + writeMessage.substring(1,30));
                     updateLatLon(writeMessage.substring(1,30));
+                    updateSignalStrength("-150dB");
                     //writeMessage = writeMessage.substring(begin, end);
                     break;
             }
@@ -234,6 +236,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             //mMap.moveCamera(CameraUpdateFactory.newLatLng(initialPos));
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(updatedPos, 18.0f));
         } catch (Exception e) {Log.d("EXCEPTION", "HELLO " + e.getMessage()); }
+    }
+
+    public void updateSignalStrength(String ss) {
+        TextView signalView = findViewById(R.id.signalStrength);
+        signalView.setText(ss);
     }
 } //MapsActivity
 
