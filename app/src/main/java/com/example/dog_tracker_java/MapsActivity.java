@@ -36,6 +36,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     BluetoothDevice mDevice;
     BluetoothAdapter bluetoothAdapter;
+    int updateCnt = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +67,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                            .position(initialPos)
                            .title("Doggo")
                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.mika_pink_ic)));
-        //mMap.moveCamera(CameraUpdateFactory.newLatLng(initialPos));
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(initialPos, 15.0f));
 
         bluetoothOn();
@@ -201,7 +201,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            Log.d("HANDLER", "HELLO");
             byte[] writeBuf = (byte[]) msg.obj;
             int begin = (int)msg.arg1;
             int end = (int)msg.arg2;
@@ -210,11 +209,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 case 1:
                     String writeMessage = new String(writeBuf);
                     List<String> data = Arrays.asList(writeMessage.split("\\s*,\\s*"));
-                    //Log.d("MESSAGE", "HELLO " + writeMessage.substring(1,30));
                     Log.d("HELLOLAT", data.get(0));
                     Log.d("HELLOLON", data.get(1));
                     Log.d("HELLOSS", data.get(2));
-                    updateLatLon(data.get(0), data.get(1));
+
+                    // Only update the marker once every 10 times
+                    if (updateCnt > 10) {
+                        updateLatLon(data.get(0), data.get(1));
+                        updateCnt = 1;
+                    } else {
+                        updateCnt++;
+                    }
                     updateSignalStrength(data.get(2));
                     break;
             }
