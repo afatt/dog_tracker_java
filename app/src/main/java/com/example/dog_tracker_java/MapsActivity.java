@@ -240,7 +240,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .position(updatedPos)
                     .title("Doggo")
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.mika_pink_ic)));
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(updatedPos, 18.0f));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(updatedPos,
+                                                                 mMap.getCameraPosition().zoom));
         } catch (Exception e) {Log.d("EXCEPTION", "HELLO " + e.getMessage()); }
     }
 
