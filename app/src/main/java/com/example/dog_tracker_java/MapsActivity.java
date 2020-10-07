@@ -26,6 +26,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -206,20 +208,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             switch(msg.what) {
                 case 1:
-                    Log.d("CASE", "HELLO");
                     String writeMessage = new String(writeBuf);
-                    Log.d("MESSAGE", "HELLO " + writeMessage.substring(1,30));
-                    updateLatLon(writeMessage.substring(1,30));
-                    updateSignalStrength("-150dB");
-                    //writeMessage = writeMessage.substring(begin, end);
+                    List<String> data = Arrays.asList(writeMessage.split("\\s*,\\s*"));
+                    //Log.d("MESSAGE", "HELLO " + writeMessage.substring(1,30));
+                    Log.d("HELLOLAT", data.get(0));
+                    Log.d("HELLOLON", data.get(1));
+                    Log.d("HELLOSS", data.get(2));
+                    updateLatLon(data.get(0), data.get(1));
+                    updateSignalStrength(data.get(2));
                     break;
             }
         }
     }; //Handler
 
-    public void updateLatLon(String msg) {
-        String lat = msg.substring(4, 14);
-        String lon = msg.substring(19, 29);
+    public void updateLatLon(String lat, String lon) {
         Log.d("LAT", "HELLO " + lat);
         Log.d("LON", "HELLO " + lon);
         try {
@@ -233,14 +235,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .position(updatedPos)
                     .title("Doggo")
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.mika_pink_ic)));
-            //mMap.moveCamera(CameraUpdateFactory.newLatLng(initialPos));
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(updatedPos, 18.0f));
         } catch (Exception e) {Log.d("EXCEPTION", "HELLO " + e.getMessage()); }
     }
 
     public void updateSignalStrength(String ss) {
         TextView signalView = findViewById(R.id.signalStrength);
-        signalView.setText(ss);
+        signalView.setText("Signal Strength: " + ss + "dB");
     }
 } //MapsActivity
 
