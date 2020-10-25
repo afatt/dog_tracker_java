@@ -14,4 +14,12 @@
         android:layout_height="wrap_content"
         android:text="@string/signalstrength"/>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:src="@drawable/path_icon"
+        android:layout_margin="60dp"/>
+
     </fragment>

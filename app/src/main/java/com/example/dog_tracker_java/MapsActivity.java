@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -22,6 +23,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,6 +39,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     BluetoothDevice mDevice;
     BluetoothAdapter bluetoothAdapter;
     int updateCnt = 1;
+    boolean pathIsOn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +73,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(initialPos, 15.0f));
 
         bluetoothOn();
+
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (pathIsOn) {
+                    pathIsOn = false;
+                } else {
+                    pathIsOn = true;
+                }
+            }
+        });
 
     }
 
@@ -233,7 +248,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Double dlat = Double.parseDouble(lat);
             Double dlon = Double.parseDouble(lon);
 
-            mMap.clear(); //Keeps markers from persisting on map (Mem leak potential?)
+            if (!pathIsOn) {
+                mMap.clear(); //Keeps markers from persisting on map (Mem leak potential?)
+            }
 
             LatLng updatedPos = new LatLng(dlat, dlon);
             mMap.addMarker(new MarkerOptions()
