@@ -69,7 +69,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(new MarkerOptions()
                            .position(initialPos)
                            .title("Doggo")
-                           .icon(BitmapDescriptorFactory.fromResource(R.drawable.mika_pink_ic)));
+                           .icon(BitmapDescriptorFactory.fromResource(R.drawable.reggie_pin)));
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(initialPos, 15.0f));
 
         bluetoothOn();
@@ -256,7 +256,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.addMarker(new MarkerOptions()
                     .position(updatedPos)
                     .title("Doggo")
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.mika_pink_ic)));
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.reggie_pin)));
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(updatedPos,
                                                                  mMap.getCameraPosition().zoom));
         } catch (Exception e) {Log.d("EXCEPTION", "HELLO " + e.getMessage()); }
